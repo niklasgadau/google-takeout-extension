@@ -38,3 +38,9 @@ npm test
 3. Click `Copy wget snippet` or `Copy aria2c snippet`.
 4. Paste the snippet in a shell on your NAS or server.
 5. Use `Flush` to clear old links.
+
+## Release automation
+
+- CI uses [svu](https://github.com/caarlos0/svu) to calculate the next semantic version.
+- On every push to `main`, CI creates/updates a GitHub Release with a zipped extension bundle.
+- Version behavior is configured in `.svu.yml`.

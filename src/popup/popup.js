@@ -63,7 +63,7 @@ export async function initPopup({
       return;
     }
 
-    const text = builder(links.map((entry) => entry.url));
+    const text = builder(links);
     await clipboard.writeText(text);
     setStatus(doc, "Snippet copied.");
   }

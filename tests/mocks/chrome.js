@@ -1,7 +1,7 @@
 import { STORAGE_KEY } from "../../src/lib/constants.js";
 
 export function createChromeMock(initialLinks = []) {
-  const listeners = [];
+  const sendHeaderListeners = [];
   const state = {
     [STORAGE_KEY]: [...initialLinks]
   };
@@ -21,14 +21,14 @@ export function createChromeMock(initialLinks = []) {
       }
     },
     webRequest: {
-      onBeforeRequest: {
+      onBeforeSendHeaders: {
         addListener(listener) {
-          listeners.push(listener);
+          sendHeaderListeners.push(listener);
         }
       }
     },
-    async __triggerBeforeRequest(details) {
-      for (const listener of listeners) {
+    async __triggerBeforeSendHeaders(details) {
+      for (const listener of sendHeaderListeners) {
         await listener(details);
       }
     },

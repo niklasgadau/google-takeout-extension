@@ -24,3 +24,54 @@ jobs:
 
       - name: Run tests
         run: npm test -- --run
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Install svu
+        run: go install github.com/caarlos0/svu/v3@latest
+
+      - name: Calculate next semantic version
+        id: version
+        run: |
+          SVU="$(go env GOPATH)/bin/svu"
+          VERSION="$($SVU next)"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build extension archive
+        run: |
+          zip -r "google-takeout-extension-${{ steps.version.outputs.version }}.zip" \
+            manifest.json \
+            src \
+            README.md
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          files: google-takeout-extension-${{ steps.version.outputs.version }}.zip
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          prerelease: false
+          draft: false
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            Automated release created by CI using svu semantic versioning.
+          allow_updates: true

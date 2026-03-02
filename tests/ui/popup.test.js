@@ -56,7 +56,8 @@ describe("popup", () => {
       {
         url: "https://takeout-download.usercontent.google.com/download/one.tgz?j=1",
         filename: "one.tgz",
-        capturedAt: "2026-03-02T12:00:00.000Z"
+        capturedAt: "2026-03-02T12:00:00.000Z",
+        headers: { cookie: "SID=abc" }
       }
     ]);
     const clipboard = { writeText: vi.fn().mockResolvedValue(undefined) };
@@ -68,7 +69,9 @@ describe("popup", () => {
     await waitForUi();
 
     expect(clipboard.writeText).toHaveBeenCalledTimes(1);
-    expect(clipboard.writeText.mock.calls[0][0]).toContain("wget --continue");
+    expect(clipboard.writeText.mock.calls[0][0]).toContain(
+      "wget -c -t 0 --retry-connrefused"
+    );
 
     doc.getElementById("flush").click();
     await waitForUi();

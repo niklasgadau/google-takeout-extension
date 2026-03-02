@@ -7,7 +7,7 @@ describe("service worker request capture", () => {
     vi.resetModules();
   });
 
-  it("captures valid takeout tgz url once", async () => {
+  it("captures valid takeout tgz url and headers", async () => {
     const chromeMock = createChromeMock();
     globalThis.chrome = chromeMock;
 
@@ -16,12 +16,25 @@ describe("service worker request capture", () => {
     const url =
       "https://takeout-download.usercontent.google.com/download/takeout-20260301T214707Z-3-001.tgz?j=513";
 
-    await chromeMock.__triggerBeforeRequest({ method: "GET", url });
-    await chromeMock.__triggerBeforeRequest({ method: "GET", url });
+    await chromeMock.__triggerBeforeSendHeaders({
+      method: "GET",
+      url,
+      requestHeaders: [
+        { name: "accept", value: "*/*" },
+        { name: "cookie", value: "SID=abc" },
+        { name: "referer", value: "https://takeout.google.com/" }
+      ]
+    });
+    await chromeMock.__triggerBeforeSendHeaders({
+      method: "GET",
+      url,
+      requestHeaders: [{ name: "cookie", value: "SID=updated" }]
+    });
 
     const stored = chromeMock.__getState()[STORAGE_KEY];
     expect(stored).toHaveLength(1);
     expect(stored[0].url).toBe(url);
+    expect(stored[0].headers.cookie).toBe("SID=updated");
   });
 
   it("ignores non matching requests", async () => {
@@ -30,9 +43,10 @@ describe("service worker request capture", () => {
 
     await import("../../src/background/service-worker.js");
 
-    await chromeMock.__triggerBeforeRequest({
+    await chromeMock.__triggerBeforeSendHeaders({
       method: "GET",
-      url: "https://example.com/download/file.tgz"
+      url: "https://example.com/download/file.tgz",
+      requestHeaders: []
     });
 
     const stored = chromeMock.__getState()[STORAGE_KEY];

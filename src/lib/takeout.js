@@ -1,5 +1,13 @@
 import { TAKEOUT_DOWNLOAD_HOST } from "./constants.js";
 
+const HEADER_WHITELIST = new Set([
+  "accept",
+  "accept-language",
+  "cookie",
+  "referer",
+  "user-agent"
+]);
+
 export function extractFilename(urlString) {
   try {
     const url = new URL(urlString);
@@ -41,5 +49,27 @@ export function createCapturedEntry(urlString, now = new Date()) {
     url: urlString,
     filename: extractFilename(urlString),
     capturedAt: now.toISOString()
+  };
+}
+
+export function pickRelevantHeaders(requestHeaders = []) {
+  const captured = {};
+
+  for (const header of requestHeaders) {
+    if (!header || typeof header.name !== "string") continue;
+    const name = header.name.toLowerCase();
+    if (!HEADER_WHITELIST.has(name)) continue;
+    if (typeof header.value !== "string" || !header.value.length) continue;
+    captured[name] = header.value;
+  }
+
+  return captured;
+}
+
+export function createCapturedEntryFromRequest(details, now = new Date()) {
+  return {
+    ...createCapturedEntry(details.url, now),
+    method: details.method || "GET",
+    headers: pickRelevantHeaders(details.requestHeaders)
   };
 }

@@ -1,11 +1,14 @@
-import { isTakeoutDownloadUrl, createCapturedEntry } from "../lib/takeout.js";
+import {
+  isTakeoutDownloadUrl,
+  createCapturedEntryFromRequest
+} from "../lib/takeout.js";
 import { getCapturedLinks, setCapturedLinks } from "../lib/storage.js";
 
 const URL_FILTERS = {
   urls: ["https://takeout-download.usercontent.google.com/download/*"]
 };
 
-export async function handleBeforeRequest(
+export async function handleBeforeSendHeaders(
   details,
   storageArea = chrome.storage.local
 ) {
@@ -13,21 +16,32 @@ export async function handleBeforeRequest(
   if (!isTakeoutDownloadUrl(details.url)) return;
 
   const capturedLinks = await getCapturedLinks(storageArea);
-  if (capturedLinks.some((entry) => entry.url === details.url)) return;
+  const nextEntry = createCapturedEntryFromRequest(details);
+  const existingIndex = capturedLinks.findIndex((entry) => entry.url === details.url);
 
-  const next = [...capturedLinks, createCapturedEntry(details.url)];
+  if (existingIndex >= 0) {
+    capturedLinks[existingIndex] = {
+      ...capturedLinks[existingIndex],
+      ...nextEntry
+    };
+    await setCapturedLinks(capturedLinks, storageArea);
+    return;
+  }
+
+  const next = [...capturedLinks, nextEntry];
   await setCapturedLinks(next, storageArea);
 }
 
 export function registerRequestListener(chromeApi = chrome) {
-  chromeApi.webRequest.onBeforeRequest.addListener(
+  chromeApi.webRequest.onBeforeSendHeaders.addListener(
     (details) => {
-      void handleBeforeRequest(details, chromeApi.storage.local);
+      void handleBeforeSendHeaders(details, chromeApi.storage.local);
     },
-    URL_FILTERS
+    URL_FILTERS,
+    ["requestHeaders", "extraHeaders"]
   );
 }
 
-if (typeof chrome !== "undefined" && chrome.webRequest?.onBeforeRequest) {
+if (typeof chrome !== "undefined" && chrome.webRequest?.onBeforeSendHeaders) {
   registerRequestListener(chrome);
 }

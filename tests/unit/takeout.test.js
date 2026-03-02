@@ -3,7 +3,9 @@ import {
   extractFilename,
   isTakeoutDownloadUrl,
   dedupeByUrl,
-  createCapturedEntry
+  createCapturedEntry,
+  pickRelevantHeaders,
+  createCapturedEntryFromRequest
 } from "../../src/lib/takeout.js";
 
 describe("takeout url helpers", () => {
@@ -48,6 +50,45 @@ describe("takeout url helpers", () => {
       url: "https://takeout-download.usercontent.google.com/download/a.tgz",
       filename: "a.tgz",
       capturedAt: "2026-03-02T15:00:00.000Z"
+    });
+  });
+
+  it("keeps only relevant request headers", () => {
+    const headers = pickRelevantHeaders([
+      { name: "accept", value: "*/*" },
+      { name: "cookie", value: "SID=abc" },
+      { name: "x-debug", value: "drop-me" }
+    ]);
+
+    expect(headers).toEqual({
+      accept: "*/*",
+      cookie: "SID=abc"
+    });
+  });
+
+  it("creates request entry with headers", () => {
+    const now = new Date("2026-03-02T15:00:00.000Z");
+    const entry = createCapturedEntryFromRequest(
+      {
+        method: "GET",
+        url: "https://takeout-download.usercontent.google.com/download/a.tgz",
+        requestHeaders: [
+          { name: "accept", value: "*/*" },
+          { name: "referer", value: "https://takeout.google.com/" }
+        ]
+      },
+      now
+    );
+
+    expect(entry).toEqual({
+      method: "GET",
+      url: "https://takeout-download.usercontent.google.com/download/a.tgz",
+      filename: "a.tgz",
+      capturedAt: "2026-03-02T15:00:00.000Z",
+      headers: {
+        accept: "*/*",
+        referer: "https://takeout.google.com/"
+      }
     });
   });
 });
