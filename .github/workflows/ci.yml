@@ -42,6 +42,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "stable"
+          cache: false
 
       - name: Install svu
         run: go install github.com/caarlos0/svu/v3@latest
@@ -74,4 +75,3 @@ jobs:
           fail_on_unmatched_files: true
           body: |
             Automated release created by CI using svu semantic versioning.
-          allow_updates: true
