@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Takeout Capture</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Takeout Capture</h1>
+      <p id="count" class="muted">0 links captured</p>
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <div class="actions">
+        <button id="copy-wget" type="button">Copy wget snippet</button>
+        <button id="copy-aria2" type="button">Copy aria2c snippet</button>
+        <button id="flush" type="button" class="danger">Flush</button>
+      </div>
+
+      <ul id="link-list" class="link-list"></ul>
+    </main>
+
+    <script type="module" src="./popup.js"></script>
+  </body>
+</html>

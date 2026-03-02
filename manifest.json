@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Takeout Link Capture",
+  "version": "0.1.0",
+  "description": "Captures Google Takeout download links and exports sequential shell snippets.",
+  "permissions": ["storage", "webRequest", "clipboardWrite"],
+  "host_permissions": [
+    "https://takeout.google.com/*",
+    "https://takeout-download.usercontent.google.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Takeout Capture",
+    "default_popup": "src/popup/popup.html"
+  }
+}

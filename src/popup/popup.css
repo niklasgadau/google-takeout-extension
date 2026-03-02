@@ -1,0 +1,87 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", "Noto Sans", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f7f8fc;
+  color: #1d2433;
+}
+
+.container {
+  width: 420px;
+  max-height: 560px;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.muted {
+  margin: 8px 0;
+  color: #5c6378;
+}
+
+.status {
+  min-height: 1em;
+  margin: 8px 0;
+  color: #0f5f30;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+button {
+  border: 0;
+  background: #2f5be8;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #aeb7d4;
+  cursor: default;
+}
+
+.danger {
+  grid-column: span 2;
+  background: #b23030;
+}
+
+.link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.link-item {
+  border: 1px solid #d8dfef;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px;
+}
+
+.filename {
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.captured-at {
+  font-size: 11px;
+  color: #5c6378;
+  margin-top: 4px;
+}
